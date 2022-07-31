@@ -20,8 +20,8 @@ public class TestDeleteStmt {
     @DisplayName("Delete statement")
     public void test1() throws MissingClauseException {
         String actual = mysql.delete()
-                .from(clause -> clause.tbl("customer"))
-                .where(clause -> clause.eq("name").and().eq("id"))
+                .from(ref -> ref.tbl("customer"))
+                .where(cond -> cond.eq("name").and().eq("id"))
                 .limit(1)
                 .getQuery();
         String expected = "Delete From customer Where name = ? And id = ? Limit 1";
@@ -33,8 +33,8 @@ public class TestDeleteStmt {
     @DisplayName("Delete statement with order and limit")
     public void test2() throws MissingClauseException {
         String actual = mysql.delete()
-                .from(clause -> clause.tbl("customer"))
-                .where(clause -> clause.eq("name").and().eq("id"))
+                .from(ref -> ref.tbl("customer"))
+                .where(cond -> cond.eq("name").and().eq("id"))
                 .order("id", "name")
                 .limit(4, 1)
                 .getQuery();
@@ -48,9 +48,9 @@ public class TestDeleteStmt {
     public void test3() throws MissingClauseException {
         String actual = mysql.delete()
                 .ref("cust", "addr")
-                .from(clause -> clause.tbl("customer", "cust")
+                .from(ref -> ref.tbl("customer", "cust")
                         .innerJoin("cust_address", "addr"))
-                .where(clause -> clause.eq("cust.addr_id", "addr.id").and().eq("cust.id"))
+                .where(cond -> cond.eq("cust.addr_id", "addr.id").and().eq("cust.id"))
                 .getQuery();
         String expected = "Delete cust, addr From customer cust Inner Join cust_address addr " +
                 "Where cust.addr_id = addr.id And cust.id = ?";
