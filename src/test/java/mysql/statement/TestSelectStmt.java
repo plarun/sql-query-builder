@@ -22,9 +22,9 @@ public class TestSelectStmt {
     public void test1() throws MissingClauseException, EmptyColumnException {
         String actual = mysql.select()
                 .columns("cust.name", "cust.id", "cust.age", "cust.mail", "addr.city", "addr.pincode")
-                .from(clause -> clause.tbl("customer", "cust")
+                .from(ref -> ref.tbl("customer", "cust")
                         .innerJoin("address", "addr"))
-                .where(clause -> clause.eq("cust.addr_id", "addr.id"))
+                .where(cond -> cond.eq("cust.addr_id", "addr.id"))
                 .order("cust.name Asc", "cust.id Desc")
                 .limit(2)
                 .getQuery();
@@ -42,8 +42,8 @@ public class TestSelectStmt {
     public void test2() throws MissingClauseException, EmptyColumnException {
         String actual = mysql.select()
                 .columns("city", "pincode", "Count(*)")
-                .from(clause -> clause.tbl("address"))
-                .where(clause -> clause.isNotNull("pincode"))
+                .from(ref -> ref.tbl("address"))
+                .where(cond -> cond.isNotNull("pincode"))
                 .group("city", "pincode")
                 .having(clause -> clause.gtEq("Count(*)"))
                 .limit(2, 1)

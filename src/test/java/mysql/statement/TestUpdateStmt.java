@@ -24,7 +24,7 @@ public class TestUpdateStmt {
         String actual = mysql.update()
                 .table("customer")
                 .set("age", "mail")
-                .where(clause -> clause.eq("name").and().eq("id"))
+                .where(cond -> cond.eq("name").and().eq("id"))
                 .getQuery();
         String expected = "Update customer Set age = ?, mail = ? Where name = ? And id = ?";
 
@@ -37,7 +37,7 @@ public class TestUpdateStmt {
         String actual = mysql.update()
                 .table("customer")
                 .set("age", "mail")
-                .where(clause -> clause.eq("name").and().in("role", 2)
+                .where(cond -> cond.eq("name").and().in("role", 2)
                         .orWrap()
                         .eq("mail").and().ltEq("age"))
                 .limit(10, 2)
