@@ -1,10 +1,11 @@
 package com.builder.mysql;
 
 import com.builder.SqlBuilder;
+import com.builder.mysql.clause.WithClause;
 import com.builder.mysql.statement.*;
 
 public class MysqlBuilder implements SqlBuilder {
-    private static final String sqlType = "My-SQL";
+    private static final String sqlType = "MySQL";
 
     @Override
     public String sqlType() {
@@ -25,5 +26,9 @@ public class MysqlBuilder implements SqlBuilder {
 
     public DeleteStmt delete() {
         return new DeleteStmt();
+    }
+
+    public WithClause with() {
+        return new WithClause();
     }
 }

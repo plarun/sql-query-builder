@@ -22,8 +22,9 @@ public class TestDeleteStmt {
         String actual = mysql.delete()
                 .from(clause -> clause.tbl("customer"))
                 .where(clause -> clause.eq("name").and().eq("id"))
+                .limit(1)
                 .getQuery();
-        String expected = "Delete From customer Where name = ? And id = ?";
+        String expected = "Delete From customer Where name = ? And id = ? Limit 1";
 
         assertEquals(expected, actual);
     }
@@ -35,15 +36,15 @@ public class TestDeleteStmt {
                 .from(clause -> clause.tbl("customer"))
                 .where(clause -> clause.eq("name").and().eq("id"))
                 .order("id", "name")
-                .limit(4)
+                .limit(4, 1)
                 .getQuery();
-        String expected = "Delete From customer Where name = ? And id = ? Order By id, name Limit 4";
+        String expected = "Delete From customer Where name = ? And id = ? Order By id, name Limit 4, 1";
 
         assertEquals(expected, actual);
     }
 
     @Test
-    @DisplayName("Delete statement with order and limit")
+    @DisplayName("Delete statement with table reference")
     public void test3() throws MissingClauseException {
         String actual = mysql.delete()
                 .ref("cust", "addr")

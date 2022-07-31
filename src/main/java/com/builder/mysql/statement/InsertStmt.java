@@ -6,7 +6,7 @@ import com.builder.mysql.exception.MissingTableException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InsertStmt implements QueryStmt {
+public final class InsertStmt implements QueryStmt {
     private static final String clauseName = "Insert";
 
     private Table table;
@@ -24,14 +24,8 @@ public class InsertStmt implements QueryStmt {
         this.isColumnRequired = false;
     }
 
-    public InsertStmt intoTable(String tableName) {
+    public InsertStmt into(String tableName) {
         this.table = new Table(tableName);
-        return this;
-    }
-
-    public InsertStmt intoTable(String schema, String tableName) {
-        this.table = new Table(tableName);
-        this.table.setSchema(schema);
         return this;
     }
 
@@ -50,7 +44,7 @@ public class InsertStmt implements QueryStmt {
         return this;
     }
 
-    public InsertStmt setRows(int rowCount) {
+    public InsertStmt rows(int rowCount) {
         this.rowCount = rowCount;
         return this;
     }

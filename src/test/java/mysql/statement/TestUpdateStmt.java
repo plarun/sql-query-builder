@@ -22,7 +22,7 @@ public class TestUpdateStmt {
     @DisplayName("Update statement")
     public void test1() throws MissingTableException, MissingClauseException, EmptyColumnException {
         String actual = mysql.update()
-                .onTable("customer")
+                .table("customer")
                 .set("age", "mail")
                 .where(clause -> clause.eq("name").and().eq("id"))
                 .getQuery();
@@ -35,14 +35,15 @@ public class TestUpdateStmt {
     @DisplayName("Update statement with table reference")
     public void test2() throws MissingTableException, MissingClauseException, EmptyColumnException {
         String actual = mysql.update()
-                .onTable("schema", "customer")
+                .table("customer")
                 .set("age", "mail")
                 .where(clause -> clause.eq("name").and().in("role", 2)
                         .orWrap()
                         .eq("mail").and().ltEq("age"))
+                .limit(10, 2)
                 .getQuery();
-        String expected = "Update schema.customer Set age = ?, mail = ? " +
-                "Where (name = ? And role In (?,?)) Or (mail = ? And age <= ?)";
+        String expected = "Update customer Set age = ?, mail = ? " +
+                "Where (name = ? And role In (?,?)) Or (mail = ? And age <= ?) Limit 10, 2";
 
         assertEquals(expected, actual);
     }
@@ -51,13 +52,15 @@ public class TestUpdateStmt {
     @DisplayName("Update statement with multiple table reference")
     public void test4() throws MissingTableException, MissingClauseException, EmptyColumnException {
         String actual = mysql.update()
-                .onTable(ref -> ref.tbl("t1", "a")
+                .table(ref -> ref.tbl("customer", "cust")
                         .leftJoinUsing("temp1", "t1", using -> using.columns("c1"))
                         .leftJoinUsing("temp2", "t2", using -> using.columns("c1"))
-                ).set("age")
+                ).set("cust.age")
+                .order("cust.name")
+                .limit(5)
                 .getQuery();
-        String expected = "Update t1 a Left Join temp1 t1 Using (c1) Left Join temp2 t2 Using (c1) " +
-                "Set age = ?";
+        String expected = "Update customer cust Left Join temp1 t1 Using (c1) Left Join temp2 t2 Using (c1) " +
+                "Set cust.age = ? Order By cust.name Limit 5";
 
         assertEquals(expected, actual);
     }

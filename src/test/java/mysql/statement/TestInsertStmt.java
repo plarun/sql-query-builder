@@ -20,11 +20,11 @@ public class TestInsertStmt {
     @DisplayName("Insert stmt without columns")
     public void insertWithoutColumns() throws MissingTableException {
         String query = mysql.insert()
-                .intoTable("schema", "customer")
+                .into("customer")
                 .columns(5)
-                .setRows(3)
+                .rows(3)
                 .getQuery();
-        String expected = "Insert Into schema.customer Values (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)";
+        String expected = "Insert Into customer Values (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)";
 
         assertEquals(expected, query);
     }
@@ -33,24 +33,11 @@ public class TestInsertStmt {
     @DisplayName("Insert stmt with columns")
     public void insertWithColumns() throws MissingTableException {
         String query = mysql.insert()
-                .intoTable("schema", "customer")
+                .into("customer")
                 .columns("id", "name", "age", "email", "gender")
-                .setRows(3)
+                .rows(3)
                 .getQuery();
-        String expected = "Insert Into schema.customer (id, name, age, email, gender) Values (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)";
-
-        assertEquals(expected, query);
-    }
-
-    @Test
-    @DisplayName("Table without schema")
-    public void tableWithoutSchema() throws MissingTableException {
-        String query = mysql.insert()
-                .intoTable("customer")
-                .columns(5)
-                .setRows(3)
-                .getQuery();
-        String expected = "Insert Into customer Values (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)";
+        String expected = "Insert Into customer (id, name, age, email, gender) Values (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)";
 
         assertEquals(expected, query);
     }

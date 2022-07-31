@@ -10,7 +10,7 @@ MysqlBuilder mysql = new MysqlBuilder();
 ```java
 SelectStmt stmt1 = mysql.select()
     .columns("name", "age", "mail")
-    .from(ref -> ref.tbl("customer"))
+    .from("customer")
     .where(cond -> cond.isTrue("is_active")
             .orWrap().gt("last_action"))
     .order("name")
@@ -45,9 +45,9 @@ Select city, town, Count(*)
 ## Update `statement`
 ```java
 UpdateStmt stmt1 = mysql.update()
-    .onTable("customer")
+    .table("customer")
     .set("age", "mail")
-    .where(clause -> clause.eq("name").and().eq("id"));
+    .where(cond -> cond.eq("name").and().eq("id"));
 ```
 ```mysql
 Update customer
@@ -57,7 +57,7 @@ Update customer
 ```
 ```java
 UpdateStmt stmt2 = mysql.update()
-        .onTable(ref -> ref.tbl("address", "addr")
+        .table(ref -> ref.tbl("address", "addr")
                 .leftJoinUsing("temp1", "t1", using -> using.columns("id"))
                 .leftJoinUsing("temp2", "t2", using -> using.columns("id"))
         ).set("town")
@@ -74,8 +74,8 @@ Update address addr
 ## Delete `statement`
 ```java
 DeleteStmt stmt1 = mysql.delete()
-        .from(clause -> clause.tbl("customer"))
-        .where(clause -> clause.eq("name").and().eq("id"));
+        .from(ref -> ref.tbl("customer"))
+        .where(cond -> cond.eq("name").and().eq("id"));
 ```
 ```mysql
 Delete
@@ -86,9 +86,9 @@ Delete
 ```java
 DeleteStmt stmt2 = mysql.delete()
         .ref("cust", "addr")
-        .from(clause -> clause.tbl("customer", "cust")
+        .from(ref -> ref.tbl("customer", "cust")
         .innerJoin("cust_address", "addr"))
-        .where(clause -> clause.eq("cust.addr_id", "addr.id").and().eq("cust.id"));
+        .where(cond -> cond.eq("cust.addr_id", "addr.id").and().eq("cust.id"));
 ```
 ```mysql
 Delete cust, addr
@@ -101,9 +101,9 @@ Delete cust, addr
 ## Insert `statement`
 ```java
 InsertStmt stmt1 = mysql.insert()
-        .intoTable("schema", "customer")
+        .into("schema", "customer")
         .columns("id", "name", "age", "email", "gender")
-        .setRows(3);
+        .rows(3);
 ```
 ```mysql
 Insert Into schema.customer (id, name, age, email, gender)
@@ -113,9 +113,9 @@ Insert Into schema.customer (id, name, age, email, gender)
 ```
 ```java
 InsertStmt stmt1 = mysql.insert()
-        .intoTable("customer")
+        .into("customer")
         .columns(5)
-        .setRows(3);
+        .rows(3);
 ```
 ```mysql
 Insert Into customer

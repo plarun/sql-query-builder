@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class DeleteStmt implements QueryStmt {
+public final class DeleteStmt implements QueryStmt {
     private static final String clauseName = "Delete";
     private final List<String> columns;
 
@@ -44,13 +44,13 @@ public class DeleteStmt implements QueryStmt {
         return this;
     }
 
-    public DeleteStmt limit(int lmt, int offset) {
-        limitClause = new LimitClause(lmt, offset);
+    public DeleteStmt limit(int limit, int offset) {
+        limitClause = new LimitClause(limit, offset);
         return this;
     }
 
-    public DeleteStmt limit(int lmt) {
-        limitClause = new LimitClause(lmt);
+    public DeleteStmt limit(int limit) {
+        limitClause = new LimitClause(limit);
         return this;
     }
 

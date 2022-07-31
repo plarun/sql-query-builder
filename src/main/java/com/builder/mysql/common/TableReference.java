@@ -29,20 +29,6 @@ public class TableReference {
         return this;
     }
 
-    public TableReference stbl(String schema, String name) {
-        Table table = new Table(name);
-        table.setSchema(schema);
-        add(table);
-        return this;
-    }
-
-    public TableReference stbl(String schema, String name, String alias) {
-        Table table = new Table(name, alias);
-        table.setSchema(schema);
-        add(table);
-        return this;
-    }
-
     public TableReference innerJoin(String name, String alias) {
         InnerJoin join = new InnerJoin(name, alias);
         query.append(" ").append(join.getJoin());

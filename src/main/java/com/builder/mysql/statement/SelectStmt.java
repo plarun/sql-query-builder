@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class SelectStmt implements QueryStmt {
+public final class SelectStmt implements QueryStmt {
     private static final String clauseName = "Select";
     private final List<String> columnList;
     private boolean isDistinct;
@@ -30,12 +30,6 @@ public class SelectStmt implements QueryStmt {
         isDistinct = false;
     }
 
-    public SelectStmt(WithClause withClause) {
-        columnList = new ArrayList<>();
-        isDistinct = false;
-        this.withClause = withClause;
-    }
-
     public SelectStmt columns(String... columnList) {
         this.columnList.addAll(List.of(columnList));
         return this;
@@ -43,6 +37,20 @@ public class SelectStmt implements QueryStmt {
 
     public SelectStmt distinct() {
         isDistinct = true;
+        return this;
+    }
+
+    public void setWithClause(WithClause withClause) {
+        this.withClause = withClause;
+    }
+
+    public SelectStmt from(String tableName) {
+        fromClause = new FromClause(ref -> ref.tbl(tableName));
+        return this;
+    }
+
+    public SelectStmt from(String tableName, String alias) {
+        fromClause = new FromClause(ref -> ref.tbl(tableName, alias));
         return this;
     }
 

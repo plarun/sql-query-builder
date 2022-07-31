@@ -44,7 +44,9 @@ public class WithClause implements Clause {
     }
 
     public SelectStmt select() {
-        return new SelectStmt(this);
+        SelectStmt selectStmt = new SelectStmt();
+        selectStmt.setWithClause(this);
+        return selectStmt;
     }
 
     public UpdateStmt update() {

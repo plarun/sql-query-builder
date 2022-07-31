@@ -10,13 +10,12 @@ import com.builder.mysql.common.TableReference;
 import com.builder.mysql.exception.EmptyColumnException;
 import com.builder.mysql.exception.MissingClauseException;
 import com.builder.mysql.exception.MissingTableException;
-import com.builder.mysql.exception.QueryBuildException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class UpdateStmt implements QueryStmt {
+public final class UpdateStmt implements QueryStmt {
     private static final String clauseName = "Update";
 
     private Table table;
@@ -39,18 +38,12 @@ public class UpdateStmt implements QueryStmt {
         this.withClause = withClause;
     }
 
-    public UpdateStmt onTable(String tableName) {
+    public UpdateStmt table(String tableName) {
         this.table = new Table(tableName);
         return this;
     }
 
-    public UpdateStmt onTable(String schema, String tableName) {
-        this.table = new Table(tableName);
-        this.table.setSchema(schema);
-        return this;
-    }
-
-    public UpdateStmt onTable(Function<TableReference, TableReference> clause) {
+    public UpdateStmt table(Function<TableReference, TableReference> clause) {
         this.tableReference = clause.apply(new TableReference());
         return this;
     }
