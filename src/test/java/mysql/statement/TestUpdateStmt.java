@@ -21,27 +21,30 @@ public class TestUpdateStmt {
     @Test
     @DisplayName("Update statement")
     public void test1() throws MissingTableException, MissingClauseException, EmptyColumnException {
-        String query = mysql.update()
+        String actual = mysql.update()
                 .onTable("customer")
                 .set("age", "mail")
                 .where(clause -> clause.eq("name").and().eq("id"))
                 .getQuery();
+        String expected = "Update customer Set age = ?, mail = ? Where name = ? And id = ?";
 
-        System.out.println(query);
+        assertEquals(expected, actual);
     }
 
     @Test
     @DisplayName("Update statement with table reference")
     public void test2() throws MissingTableException, MissingClauseException, EmptyColumnException {
-        String query = mysql.update()
+        String actual = mysql.update()
                 .onTable("schema", "customer")
                 .set("age", "mail")
                 .where(clause -> clause.eq("name").and().in("role", 2)
                         .orWrap()
                         .eq("mail").and().ltEq("age"))
                 .getQuery();
+        String expected = "Update schema.customer Set age = ?, mail = ? " +
+                "Where (name = ? And role In (?,?)) Or (mail = ? And age <= ?)";
 
-        System.out.println(query);
+        assertEquals(expected, actual);
     }
 
     @Test
