@@ -18,7 +18,11 @@ public class TestGroupClause {
 
     @Test
     public void test1() throws MissingClauseException, EmptyColumnException {
-        String actual = selectStmt.columns("c1", "c2", "Count(*)").from(clause -> clause.tbl("t1")).group("c1", "c2").getQuery();
+        String actual = selectStmt
+                .columns("c1", "c2", "Count(*)")
+                .from("t1")
+                .group("c1", "c2")
+                .getQuery();
         String expected = "Select c1, c2, Count(*) From t1 Group By c1, c2";
 
         assertEquals(expected, actual);

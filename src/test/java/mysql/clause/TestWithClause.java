@@ -19,16 +19,17 @@ public class TestWithClause {
     @Test
     @DisplayName("With clause")
     public void test1() throws MissingClauseException, EmptyColumnException {
-        String actual = mysql.with().as(
+        String actual = mysql.with()
+                .as(
                 "active_customer",
                 select -> select.columns("name", "age")
-                        .from(clause -> clause.tbl("customer", "c"))
-                        .where(cond -> cond.eq("c.status"))
-                        .order("c.name"),
+                        .from("customer")
+                        .where(cond -> cond.eq("status"))
+                        .order("name"),
                 "name", "age"
-        ).getClause();
+                ).getClause();
         String expected = "With active_customer (name, age) As " +
-                "(Select name, age From customer c Where c.status = ? Order By c.name)";
+                "(Select name, age From customer Where status = ? Order By name)";
 
         assertEquals(expected, actual);
     }
@@ -41,13 +42,13 @@ public class TestWithClause {
                 .as(
                 "active_customer",
                 select -> select.columns("name", "age")
-                        .from(clause -> clause.tbl("customer", "c"))
-                        .where(cond -> cond.eq("c.status"))
-                        .order("c.name"),
+                        .from("customer")
+                        .where(cond -> cond.eq("status"))
+                        .order("name"),
                 "name", "age"
-        ).getClause();
+                ).getClause();
         String expected = "With Recursive active_customer (name, age) As " +
-                "(Select name, age From customer c Where c.status = ? Order By c.name)";
+                "(Select name, age From customer Where status = ? Order By name)";
 
         assertEquals(expected, actual);
     }
@@ -55,20 +56,21 @@ public class TestWithClause {
     @Test
     @DisplayName("With clause followed by Select stmt")
     public void test3() throws MissingClauseException, EmptyColumnException {
-        String actual = mysql.with().as(
+        String actual = mysql.with()
+                .as(
                 "active_customer",
                 select -> select.columns("name", "age")
-                        .from(clause -> clause.tbl("customer", "c"))
-                        .where(cond -> cond.eq("c.status"))
-                        .order("c.name"),
+                        .from("customer")
+                        .where(cond -> cond.eq("status"))
+                        .order("name"),
                 "name", "age"
-        ).select()
+                ).select()
                 .columns("*")
-                .from(clause -> clause.tbl("active_customer"))
+                .from("active_customer")
                 .where(cond -> cond.gtEq("age"))
                 .getQuery();
         String expected = "With active_customer (name, age) As " +
-                "(Select name, age From customer c Where c.status = ? Order By c.name) " +
+                "(Select name, age From customer Where status = ? Order By name) " +
                 "Select * From active_customer Where age >= ?";
 
         assertEquals(expected, actual);

@@ -12,17 +12,12 @@ public class OrderClause implements Clause {
 
     @Override
     public String getClause() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(clauseName).append(" ");
-        boolean flag = false;
-        for (String order : orderList) {
-            if (!flag) {
-                sb.append(order);
-                flag = true;
-            } else {
-                sb.append(", ").append(order);
-            }
-        }
-        return sb.toString();
+        StringBuilder query = new StringBuilder();
+        query.append(clauseName).append(" ");
+
+        String csv = String.join(", ", orderList);
+        query.append(csv);
+
+        return query.toString();
     }
 }

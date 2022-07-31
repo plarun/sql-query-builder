@@ -1,9 +1,12 @@
 package mysql.clause;
 
+import com.builder.mysql.MysqlBuilder;
 import com.builder.mysql.clause.FromClause;
 import com.builder.mysql.common.TableReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.builder.mysql.exception.EmptyColumnException;
+import com.builder.mysql.exception.MissingClauseException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -17,10 +20,30 @@ public class TestFromClause {
     }
 
     @Test
+    @DisplayName("No join")
+    public void noJoin1() throws MissingClauseException, EmptyColumnException {
+        MysqlBuilder mysql = new MysqlBuilder();
+        String expected = "Select * From customer";
+        String actual = mysql.select().columns("*").from("customer").getQuery();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    @DisplayName("No join with table alias")
+    public void noJoin2() throws MissingClauseException, EmptyColumnException {
+        MysqlBuilder mysql = new MysqlBuilder();
+        String expected = "Select * From customer cust";
+        String actual = mysql.select().columns("*").from("customer", "cust").getQuery();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
     @DisplayName("Inner Join without keyword")
     public void innerTest1() {
         String expected = "From ta a, tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .tbl("tb", "b"));
 
@@ -31,7 +54,7 @@ public class TestFromClause {
     @DisplayName("Inner Join without join specification")
     public void innerTest2() {
         String expected = "From ta a Inner Join tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .innerJoin("tb", "b"));
 
@@ -42,7 +65,7 @@ public class TestFromClause {
     @DisplayName("Inner Join with On")
     public void innerTest3() {
         String expected = "From ta a Inner Join tb b On (a.c1 = b.c1 And a.c2 = b.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .innerJoinOn("tb", "b", on -> on.eq("a.c1", "b.c1").and().eq("a.c2", "b.c2")));
 
@@ -53,7 +76,7 @@ public class TestFromClause {
     @DisplayName("Inner Join with Using")
     public void innerTest4() {
         String expected = "From ta a Inner Join tb b Using (c1, c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .innerJoinUsing("tb", "b", using -> using.columns("c1", "c2")));
 
@@ -64,7 +87,7 @@ public class TestFromClause {
     @DisplayName("Multiple Inner Join with On")
     public void innerTest5() {
         String expected = "From ta a Inner Join tb b Inner Join tc c On (a.c1 = c.c1 And b.c2 = c.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .innerJoin("tb", "b")
                 .innerJoinOn("tc", "c", on -> on.eq("a.c1", "c.c1").and().eq("b.c2", "c.c2")));
@@ -76,7 +99,7 @@ public class TestFromClause {
     @DisplayName("Multiple Inner Join with multiple On")
     public void innerTest6() {
         String expected = "From ta a Inner Join tb b On (a.c1 = b.c1) Inner Join tc c On (b.c2 = c.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .innerJoinOn("tb", "b", on -> on.eq("a.c1", "b.c1"))
                 .innerJoinOn("tc", "c", on -> on.eq("b.c2", "c.c2")));
@@ -88,7 +111,7 @@ public class TestFromClause {
     @DisplayName("Cross Join without join specification")
     public void crossTest1() {
         String expected = "From ta a Cross Join tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .crossJoin("tb", "b"));
 
@@ -99,7 +122,7 @@ public class TestFromClause {
     @DisplayName("Cross Join with On")
     public void crossTest2() {
         String expected = "From ta a Cross Join tb b On (a.c1 = b.c1 And a.c2 = b.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .crossJoinOn("tb", "b", on -> on.eq("a.c1", "b.c1").and().eq("a.c2", "b.c2")));
 
@@ -110,7 +133,7 @@ public class TestFromClause {
     @DisplayName("Cross Join with Using")
     public void crossTest3() {
         String expected = "From ta a Cross Join tb b Using (c1, c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .crossJoinUsing("tb", "b", using -> using.columns("c1", "c2")));
 
@@ -121,7 +144,7 @@ public class TestFromClause {
     @DisplayName("Multiple Cross Join with On")
     public void crossTest4() {
         String expected = "From ta a Cross Join tb b Cross Join tc c On (a.c1 = c.c1 And b.c2 = c.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .crossJoin("tb", "b")
                 .crossJoinOn("tc", "c", on -> on.eq("a.c1", "c.c1").and().eq("b.c2", "c.c2")));
@@ -133,7 +156,7 @@ public class TestFromClause {
     @DisplayName("Multiple Cross Join with multiple On")
     public void crossTest5() {
         String expected = "From ta a Cross Join tb b On (a.c1 = b.c1) Cross Join tc c On (b.c2 = c.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .crossJoinOn("tb", "b", on -> on.eq("a.c1", "b.c1"))
                 .crossJoinOn("tc", "c", on -> on.eq("b.c2", "c.c2")));
@@ -146,7 +169,7 @@ public class TestFromClause {
     @DisplayName("straight Join without join specification")
     public void straightTest1() {
         String expected = "From ta a Straight_Join tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .straightJoin("tb", "b"));
 
@@ -157,7 +180,7 @@ public class TestFromClause {
     @DisplayName("straight Join with On")
     public void straightTest2() {
         String expected = "From ta a Straight_Join tb b On (a.c1 = b.c1 And a.c2 = b.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .straightJoinOn("tb", "b", on -> on.eq("a.c1", "b.c1").and().eq("a.c2", "b.c2")));
 
@@ -168,7 +191,7 @@ public class TestFromClause {
     @DisplayName("straight Join with Using")
     public void straightTest3() {
         String expected = "From ta a Straight_Join tb b Using (c1, c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .straightJoinUsing("tb", "b", using -> using.columns("c1", "c2")));
 
@@ -179,7 +202,7 @@ public class TestFromClause {
     @DisplayName("Multiple straight Join with On")
     public void straightTest4() {
         String expected = "From ta a Straight_Join tb b Straight_Join tc c On (a.c1 = c.c1 And b.c2 = c.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .straightJoin("tb", "b")
                 .straightJoinOn("tc", "c", on -> on.eq("a.c1", "c.c1").and().eq("b.c2", "c.c2")));
@@ -191,7 +214,7 @@ public class TestFromClause {
     @DisplayName("Multiple straight Join with multiple On")
     public void straightTest5() {
         String expected = "From ta a Straight_Join tb b On (a.c1 = b.c1) Straight_Join tc c On (b.c2 = c.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .straightJoinOn("tb", "b", on -> on.eq("a.c1", "b.c1"))
                 .straightJoinOn("tc", "c", on -> on.eq("b.c2", "c.c2")));
@@ -203,7 +226,7 @@ public class TestFromClause {
     @DisplayName("Left Join with On")
     public void leftTest1() {
         String expected = "From ta a Left Join tb b On (a.c1 = b.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .leftJoinOn("tb", "b", on -> on.eq("a.c1", "b.c2")));
 
@@ -214,7 +237,7 @@ public class TestFromClause {
     @DisplayName("Left Join with Using")
     public void leftTest2() {
         String expected = "From ta a Left Join tb b Using (c1)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .leftJoinUsing("tb", "b", using -> using.columns("c1")));
 
@@ -225,7 +248,7 @@ public class TestFromClause {
     @DisplayName("Multiple Left Join")
     public void leftTest3() {
         String expected = "From ta a Left Join tb b Using (c1) Left Join tc c On (a.c3 = c.c3)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .leftJoinUsing("tb", "b", using -> using.columns("c1"))
                 .leftJoinOn("tc", "c", on -> on.eq("a.c3", "c.c3")));
@@ -237,7 +260,7 @@ public class TestFromClause {
     @DisplayName("Right Join with On")
     public void rightTest1() {
         String expected = "From ta a Right Join tb b On (a.c1 = b.c2)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .rightJoinOn("tb", "b", on -> on.eq("a.c1", "b.c2")));
 
@@ -248,7 +271,7 @@ public class TestFromClause {
     @DisplayName("Right Join with Using")
     public void rightTest2() {
         String expected = "From ta a Right Join tb b Using (c1)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .rightJoinUsing("tb", "b", using -> using.columns("c1")));
 
@@ -259,7 +282,7 @@ public class TestFromClause {
     @DisplayName("Multiple Right Join")
     public void rightTest3() {
         String expected = "From ta a Right Join tb b Using (c1) Right Join tc c On (a.c3 = c.c3)";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .rightJoinUsing("tb", "b", using -> using.columns("c1"))
                 .rightJoinOn("tc", "c", on -> on.eq("a.c3", "c.c3")));
@@ -271,7 +294,7 @@ public class TestFromClause {
     @DisplayName("Natural Inner")
     public void naturalTest1() {
         String expected = "From ta a Natural Inner Join tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .naturalInnerJoin("tb", "b"));
 
@@ -282,7 +305,7 @@ public class TestFromClause {
     @DisplayName("Natural Left")
     public void naturalTest2() {
         String expected = "From ta a Natural Left Join tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .naturalLeftJoin("tb", "b"));
 
@@ -293,7 +316,7 @@ public class TestFromClause {
     @DisplayName("Natural Right")
     public void naturalTest3() {
         String expected = "From ta a Natural Right Join tb b";
-        String actual = from(clause -> clause
+        String actual = from(ref -> ref
                 .tbl("ta", "a")
                 .naturalRightJoin("tb", "b"));
 

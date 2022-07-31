@@ -21,7 +21,9 @@ public class TestUsingClause {
 
     @Test
     public void test1() {
-        String actual = usingClause.columns("c1", "c2", "c3").getClause();
+        String actual = usingClause
+                .columns("c1", "c2", "c3")
+                .getClause();
         String expected = "Using (c1, c2, c3)";
 
         assertEquals(expected, actual);

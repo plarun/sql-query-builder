@@ -18,7 +18,9 @@ public class TestHavingClause {
 
     @Test
     public void test1() throws MissingClauseException, EmptyColumnException {
-        String actual = selectStmt.columns("c1", "c2", "Count(*)").from(clause -> clause.tbl("t1"))
+        String actual = selectStmt
+                .columns("c1", "c2", "Count(*)")
+                .from("t1")
                 .group("c1", "c2")
                 .having(cond -> cond.gt("Count(*)"))
                 .getQuery();
