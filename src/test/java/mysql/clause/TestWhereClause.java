@@ -19,9 +19,9 @@ public class TestWhereClause {
                 .or().gtEq("col")
                 .or().in("col", 5)
                 .or().notIn("col", 1)
-                .or().is("col", true)
-                .or().is("col", false)
-                .or().is("col", null)
+                .or().isTrue("col")
+                .or().isFalse("col")
+                .or().isNull("col")
                 .or().like("col")
                 .or().between("col")
         ).getClause();

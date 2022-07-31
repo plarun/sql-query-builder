@@ -65,15 +65,27 @@ public class Condition {
                 .append(right);
     }
 
-    public Condition is(String column, Boolean value) {
+    public Condition isTrue(String column) {
         query.append(column);
-        query.append(" Is ");
-        if (value == null)
-            query.append("NULL");
-        else if (value)
-            query.append("TRUE");
-        else
-            query.append("FALSE");
+        query.append(" Is TRUE");
+        return this;
+    }
+
+    public Condition isFalse(String column) {
+        query.append(column);
+        query.append(" Is FALSE");
+        return this;
+    }
+
+    public Condition isNull(String column) {
+        query.append(column);
+        query.append(" Is NULL");
+        return this;
+    }
+
+    public Condition isNotNull(String column) {
+        query.append(column);
+        query.append(" Is Not NULL");
         return this;
     }
 
