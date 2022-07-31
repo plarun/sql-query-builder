@@ -15,8 +15,6 @@ SelectStmt stmt1 = mysql.select()
             .orWrap().gt("last_action"))
     .order("name")
     .limit(10);
-
-String query = stmt1.getQuery();
 ```
 ```mysql
 Select name, age, mail
@@ -33,8 +31,6 @@ SelectStmt stmt2 = mysql.select()
     .group("city", "town")
     .having(cond -> cond.gt("Count(*)"))
     .order("Count(*) Desc");
-        
-String query = stmt2.getQuery();
 ```
 ```mysql
 Select city, town, Count(*) 
@@ -52,8 +48,6 @@ UpdateStmt stmt1 = mysql.update()
     .onTable("customer")
     .set("age", "mail")
     .where(clause -> clause.eq("name").and().eq("id"));
-
-String query = stmt1.getQuery();
 ```
 ```mysql
 Update customer
@@ -68,8 +62,6 @@ UpdateStmt stmt2 = mysql.update()
                 .leftJoinUsing("temp2", "t2", using -> using.columns("id"))
         ).set("town")
         .where(cond -> cond.eq("addr.id"));
-
-String query = stmt2.getQuery();
 ```
 ```mysql
 Update address addr
@@ -77,4 +69,57 @@ Update address addr
     Left Join temp2 t2 Using (id)
     Set town = ?
     Where addr.id = ?
+```
+---
+## Delete `statement`
+```java
+DeleteStmt stmt1 = mysql.delete()
+        .from(clause -> clause.tbl("customer"))
+        .where(clause -> clause.eq("name").and().eq("id"));
+```
+```mysql
+Delete
+    From customer
+    Where name = ? 
+        And id = ?
+```
+```java
+DeleteStmt stmt2 = mysql.delete()
+        .ref("cust", "addr")
+        .from(clause -> clause.tbl("customer", "cust")
+        .innerJoin("cust_address", "addr"))
+        .where(clause -> clause.eq("cust.addr_id", "addr.id").and().eq("cust.id"));
+```
+```mysql
+Delete cust, addr
+    From customer cust
+    Inner Join cust_address addr
+    Where cust.addr_id = addr.id
+        And cust.id = ?
+```
+---
+## Insert `statement`
+```java
+InsertStmt stmt1 = mysql.insert()
+        .intoTable("schema", "customer")
+        .columns("id", "name", "age", "email", "gender")
+        .setRows(3);
+```
+```mysql
+Insert Into schema.customer (id, name, age, email, gender)
+    Values (?, ?, ?, ?, ?), 
+        (?, ?, ?, ?, ?), 
+        (?, ?, ?, ?, ?)
+```
+```java
+InsertStmt stmt1 = mysql.insert()
+        .intoTable("customer")
+        .columns(5)
+        .setRows(3);
+```
+```mysql
+Insert Into customer
+    Values (?, ?, ?, ?, ?), 
+        (?, ?, ?, ?, ?), 
+        (?, ?, ?, ?, ?)
 ```
