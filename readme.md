@@ -8,7 +8,7 @@ MysqlBuilder mysql = new MysqlBuilder();
 ---
 ## Select `statement`
 ```java
-SelectStmt stmt1 = mysql.select()
+SelectStmt stmt = mysql.select()
     .columns("name", "age", "mail")
     .from("customer")
     .where(cond -> cond.isTrue("is_active")
@@ -18,15 +18,15 @@ SelectStmt stmt1 = mysql.select()
 ```
 ```mysql
 Select name, age, mail
-    From customer
-    Where (is_active Is TRUE) Or (last_action > ?)
-    Order By name
-    Limit 10
+        From customer
+        Where (is_active Is TRUE) Or (last_action > ?)
+        Order By name
+        Limit 10
 ```
 ```java
-SelectStmt stmt2 = mysql.select()
+SelectStmt stmt = mysql.select()
     .columns("city", "town", "Count(*)")
-    .from(ref -> ref.tbl("address"))
+    .from("address")
     .where(cond -> cond.eq("country").and().in("state", 5))
     .group("city", "town")
     .having(cond -> cond.gt("Count(*)"))
@@ -34,68 +34,67 @@ SelectStmt stmt2 = mysql.select()
 ```
 ```mysql
 Select city, town, Count(*) 
-    From address 
-    Where country = ? 
-        And state In (?,?,?,?,?) 
-    Group By city, town 
-    Having Count(*) > ? 
-    Order By Count(*) Desc
+        From address 
+        Where country = ? 
+                And state In (?,?,?,?,?) 
+        Group By city, town 
+        Having Count(*) > ? 
+        Order By Count(*) Desc
 ```
 ---
 ## Update `statement`
 ```java
-UpdateStmt stmt1 = mysql.update()
-    .table("customer")
-    .set("age", "mail")
-    .where(cond -> cond.eq("name").and().eq("id"));
+UpdateStmt stmt = mysql.update()
+        .table("customer")
+        .set("age", "mail")
+        .where(cond -> cond.eq("name").and().eq("id"));
 ```
 ```mysql
 Update customer
-    Set age = ?, mail = ?
-    Where name = ? 
-        And id = ?
+        Set age = ?, mail = ?
+        Where name = ? 
+                And id = ?
 ```
 ```java
-UpdateStmt stmt2 = mysql.update()
+UpdateStmt stmt = mysql.update()
         .table(ref -> ref.tbl("address", "addr")
-                .leftJoinUsing("temp1", "t1", using -> using.columns("id"))
-                .leftJoinUsing("temp2", "t2", using -> using.columns("id"))
-        ).set("town")
-        .where(cond -> cond.eq("addr.id"));
+                .innerJoinUsing("customer", "cust", using -> using.columns("addr_id")))
+        .set("addr.town")
+        .where(cond -> cond.eq("cust.id"));
 ```
 ```mysql
 Update address addr
-    Left Join temp1 t1 Using (id)
-    Left Join temp2 t2 Using (id)
-    Set town = ?
-    Where addr.id = ?
+        Inner Join customer cust Using (addr_id)
+        Set addr.town = ?
+        Where cust.id = ?
 ```
 ---
 ## Delete `statement`
 ```java
 DeleteStmt stmt1 = mysql.delete()
-        .from(ref -> ref.tbl("customer"))
+        .from("customer")
         .where(cond -> cond.eq("name").and().eq("id"));
 ```
 ```mysql
 Delete
-    From customer
-    Where name = ? 
-        And id = ?
+        From customer
+        Where name = ? 
+                And id = ?
 ```
 ```java
 DeleteStmt stmt2 = mysql.delete()
         .ref("cust", "addr")
         .from(ref -> ref.tbl("customer", "cust")
-        .innerJoin("cust_address", "addr"))
-        .where(cond -> cond.eq("cust.addr_id", "addr.id").and().eq("cust.id"));
+                .innerJoin("cust_address", "addr"))
+        .where(cond -> cond.eq("cust.addr_id", "addr.id")
+                .and().eq("cust.id"));
 ```
 ```mysql
 Delete cust, addr
-    From customer cust
-    Inner Join cust_address addr
-    Where cust.addr_id = addr.id
-        And cust.id = ?
+        From customer cust
+        Inner Join cust_address addr
+        Where cust.addr_id = addr.id
+                And cust.id = ?
 ```
 ---
 ## Insert `statement`
@@ -107,9 +106,9 @@ InsertStmt stmt1 = mysql.insert()
 ```
 ```mysql
 Insert Into schema.customer (id, name, age, email, gender)
-    Values (?, ?, ?, ?, ?), 
-        (?, ?, ?, ?, ?), 
-        (?, ?, ?, ?, ?)
+        Values (?, ?, ?, ?, ?), 
+                (?, ?, ?, ?, ?), 
+                (?, ?, ?, ?, ?)
 ```
 ```java
 InsertStmt stmt1 = mysql.insert()
@@ -119,7 +118,34 @@ InsertStmt stmt1 = mysql.insert()
 ```
 ```mysql
 Insert Into customer
-    Values (?, ?, ?, ?, ?), 
-        (?, ?, ?, ?, ?), 
-        (?, ?, ?, ?, ?)
+        Values (?, ?, ?, ?, ?), 
+                (?, ?, ?, ?, ?), 
+                (?, ?, ?, ?, ?)
+```
+## With `clause`
+```java
+Selectstmt stmt = mysql.with()
+        .as("indian", select -> select
+                .columns("*")
+                .from("states")
+                .where(cond -> cond.eq("country")))
+        .as("frequent", select -> select
+                .columns("*")
+                .from("activity")
+                .where(cond -> cond.gt("frequency")))
+        .select()
+        .columns("c.name", "i.state", "f.last_activity")
+        .from(ref -> ref
+                .tbl("customer", "c")
+                .innerJoinUsing("indian", "i", using -> using.columns("state_id"))
+                .innerJoinUsing("frequent", "f", using -> using.columns("act_id")));
+```
+```mysql
+With
+        indian As (Select * From states Where country = ?), 
+        frequent As (Select * From activity Where frequency > ?) 
+Select c.name, i.state, f.last_activity 
+        From customer c 
+        Inner Join indian i Using (state_id) 
+        Inner Join frequent f Using (act_id)
 ```
